@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI-Powered Newsroom{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --dark-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            --accent-glow: 0 0 15px rgba(124, 58, 237, 0.5);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        
+        h1, h2, h3, h4, h5, h6, .logo-text {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        
+        .dark-mode {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        
+        .dark-mode .card {
+            background-color: #1e293b;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dark-mode .nav-container {
+            background: var(--dark-gradient);
+        }
+        
+        .news-card {
+            transition: all 0.3s ease;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #e0e7ff;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .gradient-bg {
+            background: var(--primary-gradient);
+        }
+        
+        .gradient-text {
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3), 0 4px 6px -4px rgba(79, 70, 229, 0.2);
+        }
+        
+        /* Modal animation */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 300ms, transform 300ms;
+        }
+        
+        .modal-exit {
+            opacity: 1;
+        }
+        
+        .modal-exit-active {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 300ms, transform 300ms;
+        }
+        
+        /* Flash messages */
+        .flash-message {
+            animation: slideDown 0.5s ease forwards;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Nav item glow effect */
+        .nav-glow {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-glow:hover {
+            text-shadow: var(--accent-glow);
+        }
+        
+        /* Accent border for active nav */
+        .nav-active {
+            position: relative;
+        }
+        
+        .nav-active::before {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--secondary-gradient);
+            border-radius: 3px;
+            box-shadow: var(--accent-glow);
+        }
+        
+        /* User avatar glow */
+        .avatar-glow {
+            transition: all 0.3s ease;
+        }
+        
+        .avatar-glow:hover {
+            box-shadow: var(--accent-glow);
+            transform: scale(1.05);
+        }
+        
+        /* Footer link hover */
+        .footer-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: var(--secondary-gradient);
+            transition: width 0.3s ease;
+        }
+        
+        .footer-link:hover::after {
+            width: 100%;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-xl font-bold flex items-center logo-text">
+                <div class="w-10 h-10 bg-white text-indigo-600 rounded-lg flex items-center justify-center mr-3 shadow-lg transform transition duration-300 hover:rotate-6">
+                    <i class="fas fa-newspaper text-xl"></i>
+                </div>
+                AI Newsroom
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex space-x-8">
+                <!-- Always visible links -->
+                <a href="/" class="nav-link nav-glow hover:text-indigo-200 transition {% if request.path == '/' %}nav-active{% endif %}">
+                    <i class="fas fa-home mr-1"></i> Home
+                </a>
+                
+                <!-- For logged-in users only -->
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="nav-link nav-glow hover:text-indigo-200 transition {% if request.path == url_for('dashboard') %}nav-active{% endif %}">
+                        <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('rewards') }}" class="nav-link nav-glow hover:text-indigo-200 transition {% if request.path == url_for('rewards') %}nav-active{% endif %}">
+                        <i class="fas fa-award mr-1"></i> Rewards
+                    </a>
+                    <a href="{{ url_for('chat') }}" class="nav-link nav-glow hover:text-indigo-200 transition {% if request.path == url_for('chat') %}nav-active{% endif %}">
+                        <i class="fas fa-comment-dots mr-1"></i> AI Chat
+                    </a>
+                    
+                    <!-- User account dropdown -->
+                    <div class="relative group">
+                        <button class="nav-link nav-glow hover:text-indigo-200 transition flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-indigo-700 flex items-center justify-center overflow-hidden mr-2 avatar-glow">
+                                {% if current_user.profile_image %}
+                                    <img src="{{ current_user.profile_image }}" alt="{{ current_user.username }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <i class="fas fa-user-circle text-white"></i>
+                                {% endif %}
+                            </div>
+                            {{ current_user.username }} <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        </button>
+                        <div class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-300 transform origin-top scale-95 group-hover:scale-100">
+                            <div class="p-3 border-b border-gray-100">
+                                <p class="text-gray-800 font-medium">{{ current_user.full_name }}</p>
+                                <p class="text-gray-500 text-sm">{{ current_user.email }}</p>
+                            </div>
+                            <div class="py-1">
+                                <a href="{{ url_for('update_profile') }}" class="block px-4 py-2 text-gray-800 hover:bg-indigo-100 transition">
+                                    <i class="fas fa-user-edit mr-2 text-indigo-500"></i> Edit Profile
+                                </a>
+                                <a href="{{ url_for('settings') }}" class="block px-4 py-2 text-gray-800 hover:bg-indigo-100 transition">
+                                    <i class="fas fa-cog mr-2 text-indigo-500"></i> Settings
+                                </a>
+                                <div class="border-t border-gray-200 my-1"></div>
+                                <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-red-600 hover:bg-red-50 transition">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- For non-logged-in users -->
+                    <a href="#about" class="nav-link nav-glow hover:text-indigo-200 transition">
+                        <i class="fas fa-info-circle mr-1"></i> About
+                    </a>
+                    <a href="#features" class="nav-link nav-glow hover:text-indigo-200 transition">
+                        <i class="fas fa-star mr-1"></i> Features
+                    </a>
+                    <a href="{{ url_for('login') }}" class="px-5 py-2 rounded-lg bg-white text-indigo-600 hover:bg-indigo-50 transition font-medium">
+                        <i class="fas fa-sign-in-alt mr-1"></i> Login
+                    </a>
+                    <a href="{{ url_for('register') }}" class="px-5 py-2 rounded-lg bg-indigo-700 hover:bg-indigo-800 text-white transition font-medium shadow-lg hover:shadow-xl">
+                        <i class="fas fa-user-plus mr-1"></i> Sign Up
+                    </a>
+                {% endif %}
+            </div>
+            
+            <!-- Mobile menu button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="focus:outline-none p-2 rounded-lg hover:bg-indigo-700 transition">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-indigo-800 bg-opacity-95 backdrop-blur-sm px-4 py-4 shadow-xl">
+            <a href="/" class="flex items-center py-3 px-2 rounded-lg hover:bg-indigo-700 transition">
+                <i class="fas fa-home w-6"></i> Home
+            </a>
+            
+            {% if current_user.is_authenticated %}
+                <!-- Logged-in mobile menu -->
+                <a href="{{ url_for('dashboard') }}" class="flex items-center py-3 px-2 rounded-lg hover:bg-indigo-700 transition">
+                    <i class="fas fa-tachometer-alt w-6"></i> Dashboard
+                </a>
+                <a href="{{ url_for('rewards') }}" class="flex items-center py-3 px-2 rounded-lg hover:bg-indigo-700 transition">
+                    <i class="fas fa-award w-6"></i> Rewards
+                </a>
+                <a href="{{ url_for('chat') }}" class="flex items-center py-3 px-2 rounded-lg hover:bg-indigo-700 transition">
+                    <i class="fas fa-comment-dots w-6"></i> AI Chat
+                </a>
+                <a href="{{ url_for('update_profile') }}" class="flex items-center py-3 px-2 rounded-lg hover:bg-indigo-700 transition">
+                    <i class="fas fa-user-edit w-6"></i> Profile
+                </a>
+                <a href="{{ url_for('settings') }}" class="flex items-center py-3 px-2 rounded-lg hover:bg-indigo-700 transition">
+                    <i class="fas fa-cog w-6"></i> Settings
+                </a>
+                <div class="border-t border-indigo-600 my-2"></div>
+                <a href="{{ url_for('logout') }}" class="flex items-center py-3 px-2 rounded-lg hover:bg-indigo-700 transition">
+                    <i class="fas fa-sign-out-alt w-6"></i> Logout
+                </a>
+            {% else %}
+                <!-- Non-logged-in mobile menu -->
+                <a href="#about" class="flex items-center py-3 px-2 rounded-lg hover:bg-indigo-700 transition">
+                    <i class="fas fa-info-circle w-6"></i> About
+                </a>
+                <a href="#features" class="flex items-center py-3 px-2 rounded-lg hover:bg-indigo-700 transition">
+                    <i class="fas fa-star w-6"></i> Features
+                </a>
+                <div class="border-t border-indigo-600 my-2"></div>
+                <a href="{{ url_for('login') }}" class="flex items-center py-3 px-2 bg-white/10 rounded-lg hover:bg-indigo-700 transition my-1">
+                    <i class="fas fa-sign-in-alt w-6"></i> Login
+                </a>
+                <a href="{{ url_for('register') }}" class="flex items-center py-3 px-2 bg-indigo-700 rounded-lg hover:bg-indigo-600 transition my-1">
+                    <i class="fas fa-user-plus w-6"></i> Sign Up
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mx-auto px-4 pt-6 pb-2">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message py-3 px-4 mb-3 rounded-lg shadow-md flex items-center justify-between 
+                        {% if category == 'error' %}
+                            bg-red-100 text-red-700 border-l-4 border-red-500
+                        {% else %}
+                            bg-green-100 text-green-700 border-l-4 border-green-500
+                        {% endif %}">
+                        <div class="flex items-center">
+                            <i class="fas {% if category == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} mr-3 text-lg"></i>
+                            {{ message }}
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6 flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white mt-12">
+        <div class="container mx-auto px-4 pt-12 pb-8">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-10 md:mb-0 md:w-1/3">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-white text-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-newspaper text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold logo-text">AI Newsroom</h3>
+                    </div>
+                    <p class="text-gray-400 mb-6">Your personalized AI-driven news experience that transforms how you consume information.</p>
+                    
+                    <!-- Newsletter Signup -->
+                    <div class="mt-6">
+                        <h4 class="font-semibold mb-3 text-indigo-300">Subscribe to our Newsletter</h4>
+                        <div class="flex">
+                            <input type="email" placeholder="Your email" class="flex-grow px-4 py-2 rounded-l-lg focus:outline-none text-gray-800">
+                            <button class="bg-indigo-600 hover:bg-indigo-700 transition px-4 py-2 rounded-r-lg">
+                                Subscribe
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8 md:w-2/3 md:pl-16">
+                    <div>
+                        <h4 class="font-semibold mb-4 text-lg text-indigo-300">Navigation</h4>
+                        <ul class="space-y-3 text-gray-400">
+                            <li>
+                                <a href="/" class="footer-link hover:text-white transition flex items-center">
+                                    <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> Home
+                                </a>
+                            </li>
+                            
+                            {% if current_user.is_authenticated %}
+                                <li>
+                                    <a href="{{ url_for('dashboard') }}" class="footer-link hover:text-white transition flex items-center">
+                                        <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('chat') }}" class="footer-link hover:text-white transition flex items-center">
+                                        <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> AI Chat
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <a href="#about" class="footer-link hover:text-white transition flex items-center">
+                                        <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> About
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#features" class="footer-link hover:text-white transition flex items-center">
+                                        <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> Features
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-4 text-lg text-indigo-300">Account</h4>
+                        <ul class="space-y-3 text-gray-400">
+                            {% if current_user.is_authenticated %}
+                                <li>
+                                    <a href="{{ url_for('update_profile') }}" class="footer-link hover:text-white transition flex items-center">
+                                        <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('settings') }}" class="footer-link hover:text-white transition flex items-center">
+                                        <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> Settings
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('rewards') }}" class="footer-link hover:text-white transition flex items-center">
+                                        <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> Rewards
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <a href="{{ url_for('login') }}" class="footer-link hover:text-white transition flex items-center">
+                                        <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> Login
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('register') }}" class="footer-link hover:text-white transition flex items-center">
+                                        <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> Sign Up
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-4 text-lg text-indigo-300">Legal</h4>
+                        <ul class="space-y-3 text-gray-400">
+                            <li>
+                                <a href="#" class="footer-link hover:text-white transition flex items-center">
+                                    <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> Privacy Policy
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="footer-link hover:text-white transition flex items-center">
+                                    <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> Terms of Service
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="footer-link hover:text-white transition flex items-center">
+                                    <i class="fas fa-chevron-right text-xs mr-2 text-indigo-400"></i> Cookie Policy
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-10 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400">© 2025 AI Newsroom. All rights reserved.</p>
+                <div class="mt-6 md:mt-0 flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition bg-gray-800 p-3 rounded-full hover:bg-indigo-700 hover:scale-110 transform duration-300">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition bg-gray-800 p-3 rounded-full hover:bg-indigo-700 hover:scale-110 transform duration-300">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition bg-gray-800 p-3 rounded-full hover:bg-indigo-700 hover:scale-110 transform duration-300">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition bg-gray-800 p-3 rounded-full hover:bg-indigo-700 hover:scale-110 transform duration-300">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <!-- AOS Animation Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+        // Initialize AOS animations
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+        });
+    
+        // Mobile menu toggle with animation
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                // Animate the menu in
+                mobileMenu.style.opacity = '0';
+                mobileMenu.style.maxHeight = '0';
+                
+                setTimeout(() => {
+                    mobileMenu.style.transition = 'opacity 300ms, max-height 500ms';
+                    mobileMenu.style.opacity = '1';
+                    mobileMenu.style.maxHeight = '500px';
+                }, 10);
+                
+                // Change icon to X
+                mobileMenuButton.innerHTML = '<i class="fas fa-times text-xl"></i>';
+            } else {
+                // Animate the menu out
+                mobileMenu.style.opacity = '0';
+                mobileMenu.style.maxHeight = '0';
+                
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.style.transition = '';
+                }, 300);
+                
+                // Change icon back to bars
+                mobileMenuButton.innerHTML = '<i class="fas fa-bars text-xl"></i>';
+            }
+        });
+
+        // Dark mode toggle (if in settings)
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('change', function() {
+                document.body.classList.toggle('dark-mode', this.checked);
+                localStorage.setItem('darkMode', this.checked ? 'enabled' : 'disabled');
+            });
+            
+            // Check for saved dark mode preference
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.checked = true;
+            }
+        }
+        
+        // Auto-close flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(message => {
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    message.style.transform = 'translateY(-20px)';
+                    message.style.transition = 'opacity 0.5s, transform 0.5s';
+                    
+                    setTimeout(() => {
+                        message.remove();
+                    }, 500);
+                }, 5000);
+            });
+        });
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

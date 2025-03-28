@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Login - AI Newsroom{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-field {
+        animation: fadeIn 0.5s ease-out;
+        animation-fill-mode: both;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    .input-field {
+        transition: all 0.3s ease;
+    }
+    
+    .input-field:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1), 0 4px 6px -4px rgba(79, 70, 229, 0.1);
+    }
+    
+    .floating-label {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        transform: translateY(-50%);
+        transition: all 0.2s ease;
+        pointer-events: none;
+    }
+    
+    .input-field:focus + .floating-label,
+    .input-field:not(:placeholder-shown) + .floating-label {
+        top: 0;
+        left: 10px;
+        transform: translateY(-50%);
+        background-color: white;
+        padding: 0 6px;
+        font-size: 0.75rem;
+        color: #4f46e5;
+    }
+    
+    .social-btn {
+        transition: all 0.3s ease;
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .social-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0.2));
+        transform: translateX(-100%);
+        transition: transform 0.6s ease;
+        z-index: -1;
+    }
+    
+    .social-btn:hover {
+        transform: translateY(-3px);
+    }
+    
+    .social-btn:hover::after {
+        transform: translateX(0);
+    }
+    
+    .google-btn:hover {
+        box-shadow: 0 8px 20px -4px rgba(234, 67, 53, 0.25);
+        border-color: rgba(234, 67, 53, 0.3);
+    }
+    
+    .facebook-btn:hover {
+        box-shadow: 0 8px 20px -4px rgba(59, 89, 152, 0.25);
+        border-color: rgba(59, 89, 152, 0.3);
+    }
+    
+    .login-btn {
+        background-size: 200% auto;
+        transition: all 0.5s ease;
+    }
+    
+    .login-btn:hover {
+        background-position: right center;
+        transform: translateY(-2px);
+    }
+    
+    .card-shine {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .card-shine::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            to bottom right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        transform: rotate(30deg);
+        animation: shine 6s infinite;
+    }
+    
+    @keyframes shine {
+        0% {
+            transform: translateX(-100%) rotate(30deg);
+        }
+        20%, 100% {
+            transform: translateX(100%) rotate(30deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex justify-center items-center py-12">
+    <div class="w-full max-w-md form-container">
+        <div class="bg-white rounded-xl shadow-xl p-8 border border-gray-100 card-shine relative">
+            <!-- Decorative elements -->
+            <div class="absolute -right-3 -top-3 w-20 h-20 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full"></div>
+            <div class="absolute -left-5 -bottom-5 w-28 h-28 bg-gradient-to-tr from-blue-500/10 to-indigo-500/10 rounded-full"></div>
+            
+            <div class="text-center mb-8 relative z-10">
+                <div class="inline-block p-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-full mb-3">
+                    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 w-14 h-14 rounded-full flex items-center justify-center text-white">
+                        <i class="fas fa-unlock-alt text-2xl"></i>
+                    </div>
+                </div>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Welcome Back</h1>
+                <p class="text-gray-600 mt-2">Login to access your personalized AI news experience</p>
+            </div>
+
+            {% if error %}
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 form-field" style="animation-delay: 0.1s;">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium">Login Error</p>
+                        <p>{{ error }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+                {% if csrf_token %}
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                {% endif %}
+                
+                <!-- Username field - FIXED HERE -->
+                <div class="mb-6 form-field" style="animation-delay: 0.2s;">
+                    <div class="relative">
+                        <input type="text" id="username" name="username" required placeholder=" "
+                               class="input-field w-full px-4 py-3 pt-6 pb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <label for="username" class="floating-label text-gray-500">Username</label>
+                    </div>
+                </div>
+                
+                <!-- Password field -->
+                <div class="mb-6 form-field" style="animation-delay: 0.3s;">
+                    <div class="flex justify-between mb-2">
+                        <label for="password" class="text-gray-700 text-sm">Password</label>
+                        <a href="{{ url_for('reset_password') }}" class="text-sm text-indigo-600 hover:text-indigo-800 transition-colors">Forgot password?</a>
+                    </div>
+                    <div class="relative">
+                        <input type="password" id="password" name="password" required placeholder=" "
+                               class="input-field w-full px-4 py-3 pt-6 pb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <label for="password" class="floating-label text-gray-500">Password</label>
+                        <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none" id="togglePassword">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Remember me checkbox -->
+                <div class="mb-6 form-field" style="animation-delay: 0.4s;">
+                    <label class="flex items-center text-gray-700">
+                        <input type="checkbox" name="remember" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <span class="ml-2">Remember me for 30 days</span>
+                    </label>
+                </div>
+                
+                <!-- Login button -->
+                <div class="mb-6 form-field" style="animation-delay: 0.5s;">
+                    <button type="submit" class="login-btn w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-3 px-4 rounded-lg transition shadow-lg hover:shadow-xl flex items-center justify-center">
+                        <span class="mr-2">Sign In</span>
+                        <i class="fas fa-sign-in-alt"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Sign up link -->
+            <div class="mt-6 flex items-center justify-center form-field" style="animation-delay: 0.6s;">
+                <span class="text-gray-600">Don't have an account?</span>
+                <a href="{{ url_for('register') }}" class="ml-2 text-indigo-600 hover:text-indigo-800 font-medium transition">
+                    Create Account
+                </a>
+            </div>
+            
+            <!-- Social login options -->
+            <div class="mt-8 pt-6 border-t border-gray-200 form-field" style="animation-delay: 0.7s;">
+                <div class="text-center text-gray-600 mb-4">Or continue with</div>
+                <div class="flex justify-center space-x-4">
+                    <button class="social-btn google-btn flex items-center px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 rounded-lg transition shadow border border-gray-200 flex-1 justify-center max-w-[150px]">
+                        <i class="fab fa-google text-red-500 mr-2 text-lg"></i> Google
+                    </button>
+                    <button class="social-btn facebook-btn flex items-center px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 rounded-lg transition shadow border border-gray-200 flex-1 justify-center max-w-[150px]">
+                        <i class="fab fa-facebook text-blue-600 mr-2 text-lg"></i> Facebook
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Security note -->
+        <div class="mt-6 text-center text-xs text-gray-500 form-field" style="animation-delay: 0.8s;">
+            <div class="flex items-center justify-center mb-2">
+                <i class="fas fa-shield-alt text-green-500 mr-2"></i>
+                <span>Secure Login</span>
+            </div>
+            <p>Your connection is encrypted and your data is protected.</p>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('togglePassword');
+        
+        // Toggle password visibility
+        togglePasswordBtn.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="far fa-eye"></i>' : '<i class="far fa-eye-slash"></i>';
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,840 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AI Newsroom{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
+<style>
+    .news-card-gradient {
+        background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
+    }
+    
+    .topic-pill.active {
+        background-color: #4f46e5 !important;
+        color: white;
+    }
+    
+    .dashboard-card {
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .news-card {
+        transition: all 0.3s ease;
+        border-radius: 1rem;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .news-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .news-card .bookmark-btn {
+        transition: all 0.3s ease;
+    }
+    
+    .news-card:hover .bookmark-btn {
+        opacity: 1;
+    }
+    
+    .news-card-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .news-card-body {
+        flex: 1;
+    }
+    
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(0.95); opacity: 0.7; }
+        70% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(0.95); opacity: 0.7; }
+    }
+    
+    .glassmorphism {
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    
+    .progress-ring {
+        position: relative;
+    }
+    
+    .progress-ring__circle {
+        transform: rotate(-90deg);
+        transform-origin: 50% 50%;
+        stroke-dasharray: 283;
+        transition: stroke-dashoffset 0.35s;
+    }
+    
+    .floating {
+        animation: floating 3s ease-in-out infinite;
+    }
+    
+    @keyframes floating {
+        0% { transform: translate(0, 0px); }
+        50% { transform: translate(0, 8px); }
+        100% { transform: translate(0, -0px); }
+    }
+    
+    .ai-pulse {
+        position: relative;
+    }
+    
+    .ai-pulse::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: rgba(99, 102, 241, 0.4);
+        border-radius: inherit;
+        animation: ai-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        z-index: -1;
+    }
+    
+    @keyframes ai-pulse {
+        0%, 100% { opacity: 0.6; transform: scale(1); }
+        50% { opacity: 0.3; transform: scale(1.05); }
+    }
+    
+    .stats-container {
+        transition: all 0.3s ease;
+    }
+    
+    .stats-card {
+        transition: all 0.3s ease;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .card-shine {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .card-shine::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.3) 100%
+        );
+        transform: skewX(-25deg);
+        animation: shine 5s infinite;
+    }
+    
+    @keyframes shine {
+        0% { left: -100%; }
+        20% { left: 100%; }
+        100% { left: 100%; }
+    }
+    
+    .category-badge {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .category-badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.3) 100%
+        );
+        transform: skewX(-25deg);
+        animation: shine-badge 3s infinite 1s;
+    }
+    
+    @keyframes shine-badge {
+        0% { left: -100%; }
+        20% { left: 100%; }
+        100% { left: 100%; }
+    }
+    
+    /* Custom scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+        width: 6px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    
+    /* Line clamp for consistent text heights */
+    .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    /* Image aspect ratio standardization */
+    .article-image-container {
+        position: relative;
+        padding-top: 56.25%; /* 16:9 aspect ratio */
+        overflow: hidden;
+    }
+    
+    .article-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    /* Improved card structure */
+    .card-footer {
+        margin-top: auto;
+    }
+    
+    /* Improved chart responsive behavior */
+    @media (max-width: 640px) {
+        .trend-chart {
+            height: 180px !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<div class="mb-8 relative overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl shadow-lg">
+    <div class="absolute inset-0">
+        <svg class="absolute inset-0 h-full w-full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M0 40L40 0M20 40L40 20M0 20L20 0" stroke="rgba(255,255,255,0.1)" stroke-width="1" fill="none" />
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+        </svg>
+    </div>
+    <div class="relative px-6 py-8 sm:px-8 sm:py-12">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+            <div class="mb-6 sm:mb-0">
+                <h1 class="text-2xl sm:text-3xl font-bold text-white">Good day, {{ current_user.username }}</h1>
+                <p class="mt-2 text-indigo-100">{{ current_date }}</p>
+                <div class="mt-4 flex items-center">
+                    <div class="flex-none">
+                        <p class="text-sm font-medium text-indigo-100">Today's Streak</p>
+                        <div class="mt-1 flex items-center">
+                            {% for day in range(7) %}
+                            <div class="flex-1 h-2 rounded-full {% if day <= (reward.streak_days if reward is defined and reward is not none and reward.streak_days is defined else 0) % 7 %}bg-indigo-600{% else %}bg-gray-200{% endif %}"></div>
+                            {% if day < 6 %}
+                            <div class="w-1"></div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="ml-6 pl-6 border-l border-indigo-400">
+                        <p class="text-sm font-medium text-indigo-100">Reward Points</p>
+                        <p class="text-xl font-bold text-white">{{ reward.points if reward is defined and reward is not none else 0 }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl p-4 border border-white border-opacity-20 w-full sm:w-auto">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center text-white">
+                        <i class="fas fa-bolt text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-medium text-white">{{ reward.level if reward is defined and reward is not none else "News Explorer" }}</h3>
+                        <p class="text-indigo-200 text-sm">{{ articles_read_week if articles_read_week is defined else 0 }} articles this week</p>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('rewards') }}" class="inline-block w-full text-center rounded-lg bg-white bg-opacity-10 hover:bg-opacity-20 text-white text-sm py-2 px-4 transition-all duration-200">
+                        <i class="fas fa-award mr-1"></i> View Rewards
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Overview Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 stats-container">
+    <div class="dashboard-card card-shine bg-white rounded-xl shadow-md p-6 border border-gray-100">
+        <div class="flex items-center justify-between">
+            <h3 class="text-gray-500 text-sm font-medium">Articles Read Today</h3>
+            <span class="inline-flex items-center justify-center p-2 rounded-full bg-indigo-100 text-indigo-500">
+                <i class="fas fa-book-reader"></i>
+            </span>
+        </div>
+        <div class="mt-2">
+            <div class="flex items-center">
+                <h3 class="text-3xl font-bold text-gray-800">{{ articles_read_today if articles_read_today is defined else 0 }}</h3>
+                <p class="{% if articles_trend is defined and articles_trend > 0 %}text-green-500{% else %}text-red-500{% endif %} text-sm flex items-center ml-2">
+                    <i class="fas fa-{% if articles_trend is defined and articles_trend > 0 %}arrow-up{% else %}arrow-down{% endif %} mr-1"></i> 
+                    {{ articles_trend|abs if articles_trend is defined else 0 }}% from yesterday
+                </p>
+            </div>
+            <p class="text-gray-500 text-sm mt-1">Weekly total: {{ articles_read_week if articles_read_week is defined else 0 }}</p>
+        </div>
+        <div class="mt-4 h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-full bg-indigo-500 rounded-full" style="width: {{ (articles_read_today if articles_read_today is defined else 0) / 10 * 100 }}%; min-width: 5%;"></div>
+        </div>
+        <p class="text-gray-400 text-xs mt-1">Goal: 10 articles/day</p>
+    </div>
+
+    <!-- XP and Engagement Level -->
+    <div class="dashboard-card card-shine bg-white rounded-xl shadow-md p-6 border border-gray-100">
+        <div class="flex items-center justify-between">
+            <h3 class="text-gray-500 text-sm font-medium">Engagement Level</h3>
+            <span class="inline-flex items-center justify-center p-2 rounded-full bg-blue-100 text-blue-500">
+                <i class="fas fa-chart-line"></i>
+            </span>
+        </div>
+        <div class="mt-2">
+            <div class="flex items-center">
+                <h3 class="text-3xl font-bold text-gray-800">{{ reward.level if reward is defined and reward is not none else "Explorer" }}</h3>
+            </div>
+            <p class="text-gray-500 text-sm mt-1">{{ reward.points if reward is defined and reward is not none else 0 }} total points earned</p>
+        </div>
+        <div class="mt-4 h-1 bg-gray-200 rounded-full overflow-hidden">
+            {% if reward is defined and reward is not none %}
+                {% if reward.level == "News Explorer" %}
+                    <div class="h-full bg-blue-500 rounded-full" style="width: {{ (reward.points / 500) * 100 }}%; min-width: 5%;"></div>
+                {% elif reward.level == "News Insider" %}
+                    <div class="h-full bg-blue-500 rounded-full" style="width: {{ ((reward.points - 500) / 1000) * 100 }}%; min-width: 5%;"></div>
+                {% elif reward.level == "News Analyst" %}
+                    <div class="h-full bg-blue-500 rounded-full" style="width: {{ ((reward.points - 1500) / 1500) * 100 }}%; min-width: 5%;"></div>
+                {% else %}
+                    <div class="h-full bg-blue-500 rounded-full" style="width: 100%;"></div>
+                {% endif %}
+            {% else %}
+                <div class="h-full bg-blue-500 rounded-full" style="width: 5%;"></div>
+            {% endif %}
+        </div>
+        <p class="text-gray-400 text-xs mt-1">
+            {% if reward is defined and reward is not none %}
+                {% if reward.level == "News Explorer" %}
+                    Next level at 500 points
+                {% elif reward.level == "News Insider" %}
+                    Next level at 1,500 points
+                {% elif reward.level == "News Analyst" %}
+                    Next level at 3,000 points
+                {% else %}
+                    Max level reached!
+                {% endif %}
+            {% else %}
+                Next level at 500 points
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Replace the "Articles Read" card with this improved version -->
+    <div class="dashboard-card card-shine bg-white rounded-xl shadow-md p-6 border border-gray-100">
+        <div class="flex items-center justify-between">
+            <h3 class="text-gray-500 text-sm font-medium">Reading Streak</h3>
+            <span class="inline-flex items-center justify-center p-2 rounded-full bg-green-100 text-green-500">
+                <i class="fas fa-fire"></i>
+            </span>
+        </div>
+        <div class="mt-2">
+            <div class="flex items-center">
+                <h3 class="text-3xl font-bold text-gray-800">{{ reward.streak_days if reward is defined and reward is not none else 0 }}</h3>
+                <span class="ml-2 text-xs uppercase font-bold px-2 py-1 rounded bg-green-100 text-green-800">DAYS</span>
+            </div>
+            <p class="text-gray-500 text-sm mt-1">Keep reading to earn bonus points!</p>
+        </div>
+        <div class="mt-4 grid grid-cols-7 gap-1">
+            {% for day in range(7) %}
+            <div class="aspect-square rounded-md flex items-center justify-center {{ 'bg-green-500 text-white' if day < (reward.streak_days if reward is defined and reward is not none else 0) % 7 else 'bg-gray-100 text-gray-400' }}">
+                {{ ["M", "T", "W", "T", "F", "S", "S"][day] }}
+            </div>
+            {% endfor %}
+        </div>
+        <p class="text-gray-400 text-xs mt-2">Bonus +15 points every 5 days</p>
+    </div>
+</div>
+    
+<!-- Topic navigation -->
+<div class="sticky top-20 z-20 bg-gray-50 py-4 -mx-4 px-4 mb-6 shadow-sm">
+    <div class="flex items-center justify-between mb-3">
+        <h2 class="text-xl font-bold text-gray-800">Topics</h2>
+        <button id="personalize-btn" class="text-indigo-600 text-sm font-medium flex items-center hover:text-indigo-800 transition-colors">
+            <i class="fas fa-sliders-h mr-1"></i> Personalize
+        </button>
+    </div>
+    <div class="overflow-x-auto custom-scrollbar pb-2">
+        <div class="flex space-x-2 min-w-max">
+            <a href="#" class="topic-pill active bg-indigo-100 text-indigo-800 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors">
+                <i class="fas fa-globe mr-1"></i> All Topics
+            </a>
+            {% for topic in user_topics %}
+            <a href="#" class="topic-pill bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors">
+                <i class="fas fa-tag mr-1"></i> {{ topic }}
+            </a>
+            {% endfor %}
+            <a href="#" class="topic-pill bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors">
+                <i class="fas fa-plus mr-1"></i> More
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Top Stories Section -->
+<div class="mb-10">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Top Stories</h2>
+        <a href="{{ url_for('news_category', category='top') }}" class="text-indigo-600 text-sm font-medium flex items-center hover:text-indigo-800 transition-colors">
+            All Stories <i class="fas fa-chevron-right ml-1 text-xs"></i>
+        </a>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Featured Story (Larger) -->
+        {% if top_stories and top_stories|length > 0 %}
+        <div class="news-card lg:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+            <div class="article-image-container">
+                <img src="{{ top_stories[0].urlToImage if top_stories[0].urlToImage is defined else 'https://via.placeholder.com/800x450/4f46e5/ffffff?text=Top+Story' }}" 
+                    alt="{{ top_stories[0].title if top_stories[0].title is defined else 'Top Story' }}" 
+                    class="article-image transition-transform hover:scale-105">
+                <div class="absolute top-3 left-3">
+                    <span class="category-badge bg-indigo-600 text-white text-xs px-2 py-1 rounded-md font-medium">
+                        <i class="fas fa-star mr-1"></i> Featured
+                    </span>
+                </div>
+                <button class="bookmark-btn absolute top-3 right-3 bg-white bg-opacity-80 backdrop-blur-sm opacity-70 rounded-full p-2 text-gray-700 hover:text-indigo-600 transition-all" onclick="toggleBookmark(this)">
+                    <i class="far fa-bookmark"></i>
+                </button>
+            </div>
+            <div class="p-6 news-card-content">
+                <div class="news-card-body">
+                    <div class="flex items-center mb-2">
+                        <p class="text-sm text-gray-500">
+                            <span class="font-medium text-gray-700">{{ top_stories[0].source.name if top_stories[0].source is defined and top_stories[0].source.name is defined else 'News Source' }}</span> • 
+                            {{ top_stories[0].published_at if top_stories[0].published_at is defined else 'Recently' }}
+                        </p>
+                        <span class="ml-auto flex items-center text-gray-400 text-sm">
+                            <i class="far fa-clock mr-1"></i> {{ top_stories[0].read_time if top_stories[0].read_time is defined else 4 }} min read
+                        </span>
+                    </div>
+                    <a href="{{ url_for('article', article_id=top_stories[0].id if top_stories[0].id is defined else 'default') }}" class="block">
+                        <h3 class="font-bold text-xl text-gray-900 hover:text-indigo-600 transition-colors mb-2">
+                            {{ top_stories[0].title if top_stories[0].title is defined else 'Today\'s Top News Story' }}
+                        </h3>
+                        <p class="text-gray-600 line-clamp-3">
+                            {{ top_stories[0].description if top_stories[0].description is defined else 'The most important news story of the day. Click to read the full article and stay informed about current events.' }}
+                        </p>
+                    </a>
+                </div>
+                
+                <div class="card-footer flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
+                    <div class="flex items-center">
+                        <button class="text-gray-400 hover:text-indigo-600 transition-colors" onclick="rateArticle(1)">
+                            <i class="far fa-thumbs-up"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-indigo-600 transition-colors ml-3" onclick="rateArticle(-1)">
+                            <i class="far fa-thumbs-down"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center">
+                        <button class="text-gray-400 hover:text-indigo-600 transition-colors" onclick="shareArticle()">
+                            <i class="far fa-share-square"></i>
+                        </button>
+                        <a href="{{ url_for('article', article_id=top_stories[0].id if top_stories[0].id is defined else 'default') }}" class="ml-3 text-indigo-600 hover:text-indigo-800 transition-colors font-medium text-sm">
+                            Read More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Additional top stories -->
+        <div class="flex flex-col lg:space-y-6">
+            {% for article in top_stories[1:3] if top_stories and top_stories|length > 1 %}
+            <div class="news-card bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 {% if not loop.last %}mb-6{% endif %}">
+                <div class="article-image-container" style="padding-top: 40%;">
+                    <img src="{{ article.urlToImage if article.urlToImage is defined else 'https://via.placeholder.com/400x160/4f46e5/ffffff?text=News+Story' }}" 
+                        alt="{{ article.title if article.title is defined else 'News Story' }}" 
+                        class="article-image transition-transform hover:scale-105">
+                    <button class="bookmark-btn absolute top-3 right-3 bg-white bg-opacity-80 backdrop-blur-sm opacity-70 rounded-full p-2 text-gray-700 hover:text-indigo-600 transition-all" onclick="toggleBookmark(this)">
+                        <i class="far fa-bookmark"></i>
+                    </button>
+                </div>
+                <div class="p-4 news-card-content">
+                    <div class="news-card-body">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs text-gray-500 truncate max-w-[65%]">
+                                <span class="font-medium text-gray-700">{{ article.source.name if article.source is defined and article.source.name is defined else 'News Source' }}</span> • 
+                                {{ article.published_at if article.published_at is defined else 'Recently' }}
+                            </p>
+                            <span class="flex items-center text-gray-400 text-xs flex-shrink-0">
+                                <i class="far fa-clock mr-1"></i> {{ article.read_time if article.read_time is defined else 2 }} min
+                            </span>
+                        </div>
+                        <a href="{{ url_for('article', article_id=article.id if article.id is defined else 'default') }}" class="block">
+                            <h3 class="font-bold text-gray-900 hover:text-indigo-600 transition-colors mb-2 line-clamp-2">
+                                {{ article.title if article.title is defined else 'Important News Story' }}
+                            </h3>
+                            <p class="text-gray-600 text-sm line-clamp-2 mb-1">
+                                {{ article.description if article.description is defined else 'This news story contains important information about current events. Click to read more.' }}
+                            </p>
+                        </a>
+                    </div>
+                    <div class="flex justify-end mt-2">
+                        <a href="{{ url_for('article', article_id=article.id if article.id is defined else 'default') }}" class="text-indigo-600 hover:text-indigo-800 transition-colors font-medium text-xs">
+                            Read More <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Recommended For You -->
+<div class="mb-10">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Recommended For You</h2>
+        <a href="{{ url_for('news_category', category='recommended') }}" class="text-indigo-600 text-sm font-medium flex items-center hover:text-indigo-800 transition-colors">
+            View All <i class="fas fa-chevron-right ml-1 text-xs"></i>
+        </a>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for article in recommended_articles[:6] if recommended_articles %}
+        <div class="news-card bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+            <div class="article-image-container">
+                <img src="{{ article.urlToImage if article.urlToImage is defined else 'https://via.placeholder.com/400x225/4f46e5/ffffff?text=Recommended' }}" 
+                    alt="{{ article.title if article.title is defined else 'Recommended Article' }}" 
+                    class="article-image transition-transform hover:scale-105">
+                <div class="absolute top-3 left-3">
+                    <span class="category-badge bg-green-600 text-white text-xs px-2 py-1 rounded-md font-medium">
+                        <i class="fas fa-check-circle mr-1"></i> For You
+                    </span>
+                </div>
+                <button class="bookmark-btn absolute top-3 right-3 bg-white bg-opacity-80 backdrop-blur-sm opacity-70 rounded-full p-2 text-gray-700 hover:text-indigo-600 transition-all" onclick="toggleBookmark(this)">
+                    <i class="far fa-bookmark"></i>
+                </button>
+            </div>
+            <div class="p-5 news-card-content">
+                <div class="news-card-body">
+                    <div class="flex items-center mb-2">
+                        <p class="text-xs text-gray-500">
+                            <span class="font-medium text-gray-700">{{ article.source.name if article.source is defined and article.source.name is defined else 'News Source' }}</span> • 
+                            {{ article.published_at if article.published_at is defined else 'Recently' }}
+                        </p>
+                        <span class="ml-auto flex items-center text-gray-400 text-xs">
+                            <i class="far fa-clock mr-1"></i> {{ article.read_time if article.read_time is defined else 3 }} min
+                        </span>
+                    </div>
+                    <a href="{{ url_for('article', article_id=article.id if article.id is defined else 'default') }}" class="block">
+                        <h3 class="font-bold text-gray-900 hover:text-indigo-600 transition-colors mb-2 line-clamp-2">
+                            {{ article.title if article.title is defined else 'Recommended Article' }}
+                        </h3>
+                        <p class="text-gray-600 text-sm line-clamp-2">
+                            {{ article.description if article.description is defined else 'This article has been recommended based on your interests and reading history.' }}
+                        </p>
+                    </a>
+                </div>
+                
+                <div class="card-footer flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
+                    <div class="flex items-center">
+                        <button class="text-gray-400 hover:text-indigo-600 transition-colors" onclick="rateArticle(1)">
+                            <i class="far fa-thumbs-up"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-indigo-600 transition-colors ml-3" onclick="rateArticle(-1)">
+                            <i class="far fa-thumbs-down"></i>
+                        </button>
+                    </div>
+                    <a href="{{ url_for('article', article_id=article.id if article.id is defined else 'default') }}" class="text-indigo-600 hover:text-indigo-800 transition-colors font-medium text-sm">
+                        Read More
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Trending Topics -->
+<div class="mb-10">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Trending Topics</h2>
+        <a href="{{ url_for('topics') }}" class="text-indigo-600 text-sm font-medium flex items-center hover:text-indigo-800 transition-colors">
+            View All <i class="fas fa-chevron-right ml-1 text-xs"></i>
+        </a>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {% for topic in trending_topics if trending_topics %}
+            <div class="bg-gray-50 rounded-xl p-4 hover:shadow-md transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: {{ topic.color }}">
+                        <i class="fas fa-{{ topic.icon }} text-white"></i>
+                    </div>
+                    <span class="text-xs font-medium px-2 py-1 rounded-full {{ 'bg-green-100 text-green-800' if topic.trend > 0 else 'bg-red-100 text-red-800' }}">
+                        {{ topic.trend }}%
+                    </span>
+                </div>
+                <h3 class="font-medium text-gray-900">{{ topic.name }}</h3>
+                <div class="mt-2 bg-gray-200 rounded-full h-1.5">
+                    <div class="h-1.5 rounded-full" style="width: {{ topic.percentage }}%; background-color: {{ topic.color }};"></div>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">{{ topic.percentage }}% of today's news</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- AI Assistant Quick Access -->
+<div class="mb-10">
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg relative overflow-hidden">
+        <div class="absolute inset-0">
+            <svg class="absolute inset-0 h-full w-full" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="assistant-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M0 40L40 0M20 40L40 20M0 20L20 0" stroke="rgba(255,255,255,0.1)" stroke-width="1" fill="none" />
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#assistant-pattern)" />
+            </svg>
+        </div>
+        <div class="relative px-6 py-8 sm:px-8 sm:py-8 flex flex-col md:flex-row items-center">
+            <div class="mb-6 md:mb-0 md:flex-1">
+                <h2 class="text-2xl font-bold text-white mb-2">Need more insights?</h2>
+                <p class="text-indigo-100 mb-4">Ask the AI Assistant to analyze news, explain complex topics, or find relevant articles for you.</p>
+                <a href="{{ url_for('chat') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-indigo-700 bg-white hover:bg-indigo-50 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo transition duration-150 ease-in-out">
+                    <i class="fas fa-robot mr-2"></i> Chat with AI Assistant
+                </a>
+            </div>
+            <div class="flex-shrink-0 relative">
+                <div class="w-32 h-32 rounded-full bg-white bg-opacity-10 flex items-center justify-center ai-pulse">
+                    <div class="w-24 h-24 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                        <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center floating">
+                            <i class="fas fa-brain text-indigo-600 text-3xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity/Chat -->
+<div class="mb-10">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Recent Chats</h2>
+        <a href="{{ url_for('chat') }}" class="text-indigo-600 text-sm font-medium flex items-center hover:text-indigo-800 transition-colors">
+            View All Chats <i class="fas fa-chevron-right ml-1 text-xs"></i>
+        </a>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="divide-y divide-gray-100">
+            {% if chats and chats|length > 0 %}
+                {% for chat in chats %}
+                    {% set last_message = chat.messages[-1] if chat.messages and chat.messages|length > 0 else None %}
+                    <div class="p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                {% if last_message and not last_message.is_user %}
+                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                {% else %}
+                                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ 'AI Assistant' if last_message and not last_message.is_user else 'You' }}
+                                </p>
+                                <p class="text-sm text-gray-500 line-clamp-1">
+                                    {{ last_message.content if last_message else 'No messages in this chat.' }}
+                                </p>
+                            </div>
+                            <div class="ml-auto flex items-center">
+                                <span class="text-xs text-gray-400">
+                                    {{ chat.timestamp.strftime('%b %d, %H:%M') }}
+                                </span>
+                                <a href="{{ url_for('chat') }}" class="ml-3 text-gray-400 hover:text-indigo-600">
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="p-6 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 mb-4">
+                        <i class="fas fa-comments text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No recent chats</h3>
+                    <p class="text-gray-500 max-w-md mx-auto mb-4">Start a conversation with the AI Assistant to analyze news, get summaries, or answer your questions.</p>
+                    <a href="{{ url_for('chat') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo transition duration-150 ease-in-out">
+                        <i class="fas fa-plus mr-2"></i> New Conversation
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Personalize Topics Modal (Hidden by default) -->
+<div id="personalize-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-900">Personalize Your News Feed</h2>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-gray-600 mb-4">Select topics you're interested in to customize your news feed. We'll show you more articles from these topics.</p>
+            
+            <form action="{{ url_for('update_profile') }}" method="POST" class="space-y-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {% set all_topics = ['Technology', 'Business', 'Science', 'Health', 'Sports', 'Entertainment', 'Politics', 'World', 'Environment', 'Education', 'Travel', 'Food', 'Art', 'Fashion', 'Automotive'] %}
+                    
+                    {% for topic in all_topics %}
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" name="interests" value="{{ topic }}" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                            {% if topic in user_topics %}checked{% endif %}>
+                        <span class="ml-2 text-gray-700">{{ topic }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                    <button type="button" id="cancel-btn" class="mr-3 px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 border border-transparent rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                        Save Preferences
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Topic Pills and Modal -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Topic pills functionality
+        const topicPills = document.querySelectorAll('.topic-pill');
+        topicPills.forEach(pill => {
+            pill.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Remove active class from all pills
+                topicPills.forEach(p => p.classList.remove('active'));
+                // Add active class to clicked pill
+                this.classList.add('active');
+                // In a real app, you would filter content here
+            });
+        });
+        
+        // Personalize modal functionality
+        const personalizeBtn = document.getElementById('personalize-btn');
+        const personalizeModal = document.getElementById('personalize-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        
+        personalizeBtn.addEventListener('click', function() {
+            personalizeModal.classList.remove('hidden');
+        });
+        
+        function closeModal() {
+            personalizeModal.classList.add('hidden');
+        }
+        
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        
+        // Close modal when clicking outside
+        personalizeModal.addEventListener('click', function(e) {
+            if (e.target === personalizeModal) {
+                closeModal();
+            }
+        });
+        
+        // Bookmark functionality
+        window.toggleBookmark = function(el) {
+            el.querySelector('i').classList.toggle('far');
+            el.querySelector('i').classList.toggle('fas');
+            el.querySelector('i').classList.toggle('text-indigo-600');
+            
+            // In a real app, you would call an API to save the bookmark
+        };
+        
+        // Rating functionality
+        window.rateArticle = function(rating) {
+            // In a real app, you would call an API to save the rating
+            console.log('Rating:', rating);
+        };
+        
+        // Share functionality
+        window.shareArticle = function() {
+            // In a real app, you would show share options
+            console.log('Share article');
+        };
+    });
+</script>
+{% endblock %}

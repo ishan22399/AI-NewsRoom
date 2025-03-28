@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - AI Newsroom{% endblock %}
+
+{% block extra_css %}
+<style>
+    .input-field {
+        transition: all 0.3s ease;
+    }
+    
+    .input-field:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1), 0 4px 6px -4px rgba(79, 70, 229, 0.1);
+    }
+    
+    .social-btn {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .social-btn:hover {
+        transform: translateY(-3px);
+    }
+    
+    .google-btn:hover {
+        box-shadow: 0 8px 20px -4px rgba(234, 67, 53, 0.25);
+    }
+    
+    .facebook-btn:hover {
+        box-shadow: 0 8px 20px -4px rgba(59, 89, 152, 0.25);
+    }
+    
+    .password-strength {
+        height: 4px;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+    }
+    
+    .form-container {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-field {
+        animation: fadeIn 0.5s ease-out;
+        animation-fill-mode: both;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    .floating-label {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        transform: translateY(-50%);
+        transition: all 0.2s ease;
+        pointer-events: none;
+    }
+    
+    .input-field:focus + .floating-label,
+    .input-field:not(:placeholder-shown) + .floating-label {
+        top: 0;
+        left: 10px;
+        transform: translateY(-50%);
+        background-color: white;
+        padding: 0 6px;
+        font-size: 0.75rem;
+        color: #4f46e5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex justify-center items-center py-10">
+    <div class="w-full max-w-md form-container">
+        <div class="bg-white rounded-xl shadow-xl p-8 border border-gray-100">
+            <div class="text-center mb-8">
+                <div class="inline-block p-3 bg-indigo-100 rounded-full mb-3">
+                    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 w-12 h-12 rounded-full flex items-center justify-center text-white">
+                        <i class="fas fa-user-plus text-xl"></i>
+                    </div>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Create Your Account</h1>
+                <p class="text-gray-600 mt-2">Join the AI-powered news revolution today</p>
+            </div>
+
+            {% if error %}
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 flex items-start" role="alert">
+                <i class="fas fa-exclamation-circle mt-1 mr-3"></i>
+                <div>
+                    <p class="font-bold">Registration Error</p>
+                    <p>{{ error }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                <div class="space-y-6">
+                    <!-- Username field -->
+                    <div class="form-field" style="animation-delay: 0.1s;">
+                        <div class="relative">
+                            <input type="text" id="username" name="username" required placeholder=" "
+                                class="input-field w-full px-4 py-3 pt-6 pb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <label for="username" class="floating-label text-gray-500">Username</label>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1 hidden" id="username-error">Username must be at least 3 characters</p>
+                    </div>
+                    
+                    <!-- Full Name field -->
+                    <div class="form-field" style="animation-delay: 0.2s;">
+                        <div class="relative">
+                            <input type="text" id="full_name" name="full_name" required placeholder=" "
+                                class="input-field w-full px-4 py-3 pt-6 pb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <label for="full_name" class="floating-label text-gray-500">Full Name</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Email field -->
+                    <div class="form-field" style="animation-delay: 0.3s;">
+                        <div class="relative">
+                            <input type="email" id="email" name="email" required placeholder=" "
+                                class="input-field w-full px-4 py-3 pt-6 pb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <label for="email" class="floating-label text-gray-500">Email Address</label>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1 hidden" id="email-error">Please enter a valid email address</p>
+                    </div>
+                    
+                    <!-- Password field -->
+                    <div class="form-field" style="animation-delay: 0.4s;">
+                        <div class="relative">
+                            <input type="password" id="password" name="password" required placeholder=" " minlength="8"
+                                class="input-field w-full px-4 py-3 pt-6 pb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <label for="password" class="floating-label text-gray-500">Password</label>
+                            <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none" id="togglePassword">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                        <!-- Password strength indicator -->
+                        <div class="mt-2">
+                            <div class="flex w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="password-strength bg-gray-200" id="password-strength-meter" style="width: 0%"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1" id="password-strength-text">Password must be at least 8 characters</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirm Password field -->
+                    <div class="form-field" style="animation-delay: 0.5s;">
+                        <div class="relative">
+                            <input type="password" id="confirm_password" name="confirm_password" required placeholder=" " minlength="8"
+                                class="input-field w-full px-4 py-3 pt-6 pb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <label for="confirm_password" class="floating-label text-gray-500">Confirm Password</label>
+                        </div>
+                        <p class="text-xs text-red-500 mt-1 hidden" id="confirm-password-error">Passwords do not match</p>
+                    </div>
+                    
+                    <!-- Terms checkbox -->
+                    <div class="form-field" style="animation-delay: 0.6s;">
+                        <label class="flex items-start">
+                            <input type="checkbox" name="terms" required class="rounded text-indigo-600 focus:ring-indigo-500 mt-1">
+                            <span class="ml-2 text-gray-700 text-sm">
+                                I agree to the <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium">Terms of Service</a> and 
+                                <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium">Privacy Policy</a>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Submit button -->
+                <div class="mt-8 form-field" style="animation-delay: 0.7s;">
+                    <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-3 px-4 rounded-lg transition shadow-lg hover:shadow-xl flex items-center justify-center">
+                        <span class="mr-2">Create Account</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Login link -->
+            <div class="mt-6 flex items-center justify-center form-field" style="animation-delay: 0.8s;">
+                <span class="text-gray-600">Already have an account?</span>
+                <a href="{{ url_for('login') }}" class="ml-2 text-indigo-600 hover:text-indigo-800 font-medium transition">
+                    Login
+                </a>
+            </div>
+            
+            <!-- Social login options -->
+            <div class="mt-8 pt-6 border-t border-gray-200 form-field" style="animation-delay: 0.9s;">
+                <div class="text-center text-gray-600 mb-4">Or sign up with</div>
+                <div class="flex justify-center space-x-4">
+                    <button type="button" class="social-btn google-btn flex items-center px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 rounded-lg transition shadow border border-gray-200 flex-1 justify-center max-w-[150px]">
+                        <i class="fab fa-google text-red-500 mr-2 text-lg"></i> Google
+                    </button>
+                    <button type="button" class="social-btn facebook-btn flex items-center px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 rounded-lg transition shadow border border-gray-200 flex-1 justify-center max-w-[150px]">
+                        <i class="fab fa-facebook text-blue-600 mr-2 text-lg"></i> Facebook
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Security note -->
+        <div class="mt-6 text-center text-xs text-gray-500 form-field" style="animation-delay: 1s;">
+            <div class="flex items-center justify-center mb-2">
+                <i class="fas fa-shield-alt text-green-500 mr-2"></i>
+                <span>Secure Registration</span>
+            </div>
+            <p>Your data is encrypted and securely stored according to industry standards.</p>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
+        const togglePasswordBtn = document.getElementById('togglePassword');
+        const passwordStrengthMeter = document.getElementById('password-strength-meter');
+        const passwordStrengthText = document.getElementById('password-strength-text');
+        const confirmPasswordError = document.getElementById('confirm-password-error');
+        const registerForm = document.getElementById('registerForm');
+        
+        // Toggle password visibility
+        togglePasswordBtn.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="far fa-eye"></i>' : '<i class="far fa-eye-slash"></i>';
+        });
+        
+        // Check password strength
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            let feedback = '';
+            
+            // Password length
+            if (password.length >= 8) {
+                strength += 25;
+            }
+            
+            // Contains lowercase and uppercase
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) {
+                strength += 25;
+            }
+            
+            // Contains numbers
+            if (password.match(/\d/)) {
+                strength += 25;
+            }
+            
+            // Contains special characters
+            if (password.match(/[^a-zA-Z\d]/)) {
+                strength += 25;
+            }
+            
+            // Update strength meter
+            passwordStrengthMeter.style.width = strength + '%';
+            
+            // Set color based on strength
+            if (strength <= 25) {
+                passwordStrengthMeter.className = 'password-strength bg-red-500';
+                feedback = 'Weak password';
+            } else if (strength <= 50) {
+                passwordStrengthMeter.className = 'password-strength bg-orange-500';
+                feedback = 'Moderate password';
+            } else if (strength <= 75) {
+                passwordStrengthMeter.className = 'password-strength bg-yellow-500';
+                feedback = 'Good password';
+            } else {
+                passwordStrengthMeter.className = 'password-strength bg-green-500';
+                feedback = 'Strong password';
+            }
+            
+            passwordStrengthText.textContent = feedback;
+        });
+        
+        // Check password match
+        confirmPasswordInput.addEventListener('input', function() {
+            if (this.value && this.value !== passwordInput.value) {
+                confirmPasswordError.classList.remove('hidden');
+            } else {
+                confirmPasswordError.classList.add('hidden');
+            }
+        });
+        
+        // Form validation
+        registerForm.addEventListener('submit', function(e) {
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                e.preventDefault();
+                confirmPasswordError.classList.remove('hidden');
+                confirmPasswordInput.focus();
+            }
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

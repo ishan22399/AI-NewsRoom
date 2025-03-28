@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Select Your Interests - AI Newsroom{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Select Your Interests</h1>
+        <p class="text-gray-600 mt-2">Help us personalize your news experience</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('interests') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {% for category in categories %}
+            <div class="bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition">
+                <label class="flex items-start cursor-pointer">
+                    <input type="checkbox" name="interests" value="{{ category.id }}" class="mt-1 rounded text-indigo-600 focus:ring-indigo-500">
+                    <div class="ml-3">
+                        <span class="block font-semibold">{{ category.name }}</span>
+                        <span class="text-sm text-gray-500">{{ category.description }}</span>
+                    </div>
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+            <h3 class="text-xl font-bold mb-4">Topics You Might Be Interested In</h3>
+            <div class="flex flex-wrap gap-2">
+                {% for topic in suggested_topics %}
+                <label class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full cursor-pointer">
+                    <input type="checkbox" name="topics" value="{{ topic.id }}" class="sr-only">
+                    <span>{{ topic.name }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+            <h3 class="text-xl font-bold mb-4">News Sources</h3>
+            <p class="text-gray-600 mb-4">Select your preferred news sources</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {% for source in sources %}
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" name="sources" value="{{ source.id }}" class="rounded text-indigo-600 focus:ring-indigo-500">
+                    <span class="ml-2">{{ source.name }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="flex justify-between items-center">
+            <button type="button" onclick="selectAll()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition">
+                Select All
+            </button>
+            <button type="submit" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition shadow-md">
+                Save Preferences
+            </button>
+        </div>
+    </form>
+
+    <div class="mt-8 text-center text-gray-600">
+        <p>You can always update your preferences later in your profile settings</p>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function selectAll() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = true;
+        });
+    }
+    
+    // Toggle active state for topic pills
+    const topicPills = document.querySelectorAll('input[name="topics"]');
+    topicPills.forEach(pill => {
+        pill.addEventListener('change', function() {
+            if (this.checked) {
+                this.parentElement.classList.add('bg-indigo-100', 'text-indigo-700');
+                this.parentElement.classList.remove('bg-gray-100', 'hover:bg-gray-200');
+            } else {
+                this.parentElement.classList.remove('bg-indigo-100', 'text-indigo-700');
+                this.parentElement.classList.add('bg-gray-100', 'hover:bg-gray-200');
+            }
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

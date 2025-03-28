@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - AI Newsroom{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">{{ title }}</h1>
+    <p class="text-gray-600 mt-2">{{ description }}</p>
+</div>
+
+<!-- Topic navigation -->
+<div class="sticky top-20 z-20 bg-gray-50 py-4 -mx-4 px-4 mb-6 shadow-sm">
+    <div class="overflow-x-auto custom-scrollbar pb-2">
+        <div class="flex space-x-2 min-w-max">
+            <a href="{{ url_for('news_category', category='top') }}" class="topic-pill {% if category == 'top' %}active{% endif %} bg-{% if category == 'top' %}indigo{% else %}gray{% endif %}-100 text-{% if category == 'top' %}indigo{% else %}gray{% endif %}-800 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors">
+                <i class="fas fa-star mr-1"></i> Top Stories
+            </a>
+            <a href="{{ url_for('news_category', category='recommended') }}" class="topic-pill {% if category == 'recommended' %}active{% endif %} bg-{% if category == 'recommended' %}indigo{% else %}gray{% endif %}-100 text-{% if category == 'recommended' %}indigo{% else %}gray{% endif %}-800 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors">
+                <i class="fas fa-thumbs-up mr-1"></i> Recommended
+            </a>
+            {% for topic in user_topics %}
+            <a href="{{ url_for('news_category', category=topic.lower()) }}" class="topic-pill {% if category == topic.lower() %}active{% endif %} bg-{% if category == topic.lower() %}indigo{% else %}gray{% endif %}-100 text-{% if category == topic.lower() %}indigo{% else %}gray{% endif %}-800 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors">
+                <i class="fas fa-tag mr-1"></i> {{ topic }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% if articles is defined and articles|length == 0 %}
+<!-- Empty state when no articles -->
+<div class="flex flex-col items-center justify-center py-12 text-center">
+    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+        <i class="fas fa-newspaper text-gray-400 text-3xl"></i>
+    </div>
+    <h3 class="text-xl font-bold text-gray-800 mb-2">No articles found</h3>
+    <p class="text-gray-600 max-w-md">We couldn't find any articles for this category. Try another category or check back later.</p>
+    <a href="{{ url_for('dashboard') }}" class="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+        <i class="fas fa-home mr-2"></i> Back to Dashboard
+    </a>
+</div>
+{% else %}
+<!-- Articles grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for article in articles %}
+    <div class="news-card bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+        <div class="article-image-container">
+            <img 
+                src="{{ article.urlToImage if article.urlToImage is defined and article.urlToImage and 'default.jpg' not in article.urlToImage else 
+                    (('https://via.placeholder.com/800x450/6366f1/ffffff?text=Top+Story' if category == 'top' else
+                     'https://via.placeholder.com/400x225/8b5cf6/ffffff?text=Recommended' if category == 'recommended' else
+                     'https://via.placeholder.com/400x225/4f46e5/ffffff?text=' + category|capitalize)) }}"
+                alt="{{ article.title if article.title is defined and article.title else 'News Article' }}" 
+                class="article-image transition-transform hover:scale-105"
+                onerror="this.onerror=null; this.src='https://via.placeholder.com/400x225/' + 
+                    (('{{ category }}' === 'top') ? '6366f1/ffffff?text=Top+Story' : 
+                     ('{{ category }}' === 'recommended') ? '8b5cf6/ffffff?text=Recommended' : 
+                     '4f46e5/ffffff?text={{ category|capitalize }}');">
+            
+            <button class="bookmark-btn absolute top-3 right-3 bg-white bg-opacity-80 backdrop-blur-sm opacity-70 rounded-full p-2 text-gray-700 hover:text-indigo-600 transition-all" onclick="toggleBookmark(this)">
+                <i class="far fa-bookmark"></i>
+            </button>
+            
+            {% if category == 'recommended' %}
+            <div class="absolute top-3 left-3">
+                <span class="category-badge bg-green-600 text-white text-xs px-2 py-1 rounded-md font-medium">
+                    <i class="fas fa-thumbs-up mr-1"></i> For You
+                </span>
+            </div>
+            {% endif %}
+            
+            {% if category == 'top' %}
+            <div class="absolute top-3 left-3">
+                <span class="category-badge bg-indigo-600 text-white text-xs px-2 py-1 rounded-md font-medium">
+                    <i class="fas fa-star mr-1"></i> Top Story
+                </span>
+            </div>
+            {% endif %}
+            
+            {% if category != 'top' and category != 'recommended' %}
+            <div class="absolute top-3 left-3">
+                <span class="category-badge bg-blue-600 text-white text-xs px-2 py-1 rounded-md font-medium">
+                    <i class="fas fa-tag mr-1"></i> {{ category|capitalize }}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+        <div class="p-5 news-card-content">
+            <div class="news-card-body">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-xs text-gray-500 truncate max-w-[65%]">
+                        <span class="font-medium text-gray-700">{{ article.source.name if article.source is defined and article.source.name is defined else 'News Source' }}</span> • 
+                        {{ article.published_at if article.published_at is defined else 'Recently' }}
+                    </p>
+                    <span class="flex items-center text-gray-400 text-xs flex-shrink-0">
+                        <i class="far fa-clock mr-1"></i> {{ article.read_time if article.read_time is defined else 3 }} min
+                    </span>
+                </div>
+                <a href="{{ url_for('article', article_id=article.id if article.id is defined else 'default') }}" class="block">
+                    <h3 class="font-bold text-gray-900 hover:text-indigo-600 transition-colors mb-2 line-clamp-2">
+                        {{ article.title if article.title is defined else 'News Article' }}
+                    </h3>
+                    <p class="text-gray-600 text-sm line-clamp-3 mb-2">
+                        {{ article.description if article.description is defined else 'This article contains information related to the selected category.' }}
+                    </p>
+                </a>
+            </div>
+            
+            <div class="card-footer flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
+                <!-- Card footer content goes here (appears to be missing) -->
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination controls - Only show if there are articles -->
+{% if articles|length > 9 %}
+<div class="flex justify-center mt-8">
+    <nav class="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <span class="sr-only">Previous</span>
+            <i class="fas fa-chevron-left text-xs"></i>
+        </a>
+        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+            1
+        </a>
+        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-indigo-50 text-sm font-medium text-indigo-600 hover:bg-indigo-100">
+            2
+        </a>
+        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+            3
+        </a>
+        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+            ...
+        </span>
+        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+            8
+        </a>
+        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <span class="sr-only">Next</span>
+            <i class="fas fa-chevron-right text-xs"></i>
+        </a>
+    </nav>
+</div>
+{% endif %}
+{% endif %}
+
+<script>
+    // Bookmark functionality
+    function toggleBookmark(el) {
+        el.querySelector('i').classList.toggle('far');
+        el.querySelector('i').classList.toggle('fas');
+        el.querySelector('i').classList.toggle('text-indigo-600');
+        
+        // In a real app, you would call an API to save the bookmark
+        console.log('Toggled bookmark');
+    }
+    
+    // Rating functionality
+    function rateArticle(rating, articleId) {
+        // In a real app, you would call an API to save the rating
+        console.log('Rating:', rating, 'Article ID:', articleId);
+    }
+    
+    // Fix image loading issues
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check all images and fix any that failed to load
+        document.querySelectorAll('.article-image').forEach(function(img) {
+            if (!img.complete || img.naturalHeight === 0) {
+                let category = '{{ category }}';
+                if (category === 'top') {
+                    img.src = 'https://via.placeholder.com/400x225/6366f1/ffffff?text=Top+Story';
+                } else if (category === 'recommended') {
+                    img.src = 'https://via.placeholder.com/400x225/8b5cf6/ffffff?text=Recommended';
+                } else {
+                    img.src = 'https://via.placeholder.com/400x225/4f46e5/ffffff?text=News+Article';
+                }
+            }
+        });
+    });
+</script>
+
+<style>
+    .article-image-container {
+        position: relative;
+        overflow: hidden;
+        padding-top: 56.25%; /* 16:9 aspect ratio */
+        background-color: #f3f4f6;
+    }
+    
+    .article-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Shine effect on category badges */
+    .category-badge {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .category-badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.3) 100%
+        );
+        transform: skewX(-25deg);
+        animation: shine-badge 3s infinite 1s;
+    }
+    
+    @keyframes shine-badge {
+        0% { left: -100%; }
+        20% { left: 100%; }
+        100% { left: 100%; }
+    }
+</style>
+
+{% endblock %}
